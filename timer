@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <title>ボタンを押した時刻記録</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px;}
+        button{
+            padding: 12px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .log-box{
+            margin-top: 20px;
+            white-space: pre-line;
+            border: 1px solid #ccc;
+            padding: 10px;
+            min-height: 120px;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <h2>ボタンを押したときの時刻</h2>
+    <button id="logButton">スタート</button>
+    <div class="log-box" id="logBox"></div>
+
+    <script>
+        const btn = document.getElementById("logButton");
+        const logBox=document.getElementById("logBox");
+        const key = "timer_logs";
+        const keyStart = "timer_current_start";
+
+        // 保存済みログを読み込む
+        function loadLogs(){
+            const logs = JSON.parse(localStorage.getItem(key) || "[]");
+            logBox.textContent = logs.join("\n");
+        }
+
+        btn.addEventListener("click", () => {
+            const start = localStorage.getItem(keyStart);
+            const logs = JSON.parse(localStorage.getItem(key) || "[]");
+
+            // 1回目
+            if(!start){
+                const now = Date.now();
+                localStorage.setItem(keyStart, now);
+                btn.textContent = "ストップ";
+
+                // 開始だけ仮表示
+                const result = `開始： ${new Date(now).toLocaleString()}`;
+                logs.unshift(result);
+                localStorage.setItem(key, JSON.stringify(logs));
+                loadLogs();
+                return;
+            }
+
+            // 2回目
+            const end = Date.now();
+            const durationMs = end - Number(start);
+
+            const seconds = Math.floor(durationMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainSec = seconds % 60;
+
+            // 最新の開始ログを取り出して、終了を下に追記
+            let latest = logs[0] || "";
+            latest += `\n終了： ${new Date(end).toLocaleString()} -> 経過： ${minutes}分 ${remainSec}秒`;
+
+            logs[0] = latest;
+
+            // const result = `終了： ${new Date(end).toLocaleString()} -> 経過： ${minutes}分 ${remainSec}秒`;
+            // logs.push(result);
+            // logs.unshift(result);
+
+            localStorage.setItem(key, JSON.stringify(logs));
+
+            // 初期化
+            localStorage.removeItem(keyStart);
+            btn.textContent = "スタート";
+
+            loadLogs();
+        });
+
+        
+
+        // ボタンを押したら時刻記録
+        // document.getElementById("logButton").addEventListener("click", () => {
+        //     const now = new Date().toLocaleString();
+        //     const logs = JSON.parse(localStorage.getItem(key) || "[]");
+        //     logs.push(now);
+        //     localStorage.setItem(key,JSON.stringify(logs));
+        //     loadLogs();
+        // } );
+
+        // 初期表示
+        loadLogs();
+    </script>
+</body>
+</html>

@@ -65,7 +65,7 @@
 
             // 最新の開始ログを取り出して、終了を下に追記
             let latest = logs[0] || "";
-            latest += `\n終了： ${new Date(end).toLocaleString()} -> 経過： ${minutes}分 ${remainSec}秒\n-----`;
+            latest += `\n終了： ${new Date(end).toLocaleString()} -> 経過： ${minutes}分 ${remainSec}秒`;
 
             logs[0] = latest;
 
